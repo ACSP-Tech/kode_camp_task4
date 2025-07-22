@@ -1,9 +1,10 @@
 def check_filepath():
     import os
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__)) # Get the directory of the current file
 
     try:
         import json
+        # Create an empty structure for storing student data
         Student_objects = {
             "name" : [],
             "subjects" : [],
@@ -11,28 +12,36 @@ def check_filepath():
             "average" : [],
             "grade" : []
         }
+        # Define full file path to store the student record JSON
         file_path1 = os.path.join(BASE_DIR, "Student_record.json")
+        # If file doesn't exist, create it and write the initial structure
         if not os.path.exists(file_path1):
             with open(file_path1, "x") as file:
                 json.dump(Student_objects, file)
         else:
+            # If file exists, notify the user
             print("json file called Student_record already exits")
             print()
     except Exception as e:
+        # Catch and print any exceptions that occur
         print(f"Error with the code: {e}")
 
 def menu():
+    # Print header and welcome message
     print(".............................................................")
     print()
     print("...     Welcome to your student report card app  ......")
     print("...    Enter a valid interger from the menu options below....")
+    # Create a list of menu options
     num = 1
     menulist = ["Add", "View",  "Update",  "exit"]
+    # Print numbered menu items
     for menu in menulist:
         print()
         print(f"{num}. {menu}")
         print()
         num += 1
+    # Loop until a valid option is entered
     while True:
         try:
             options = int(input("Enter:  \n"))
@@ -46,20 +55,24 @@ def menu():
                 continue
             else:
                 break
+        # Handle non-integer inputs
         except:
             print("Please Enter a valid Integer")
             print()
             continue
-    return options 
+    return options # Return the chosen menu option
 
+# Define the Student class to represent a student's academic record
 class Student:
+    # Initialize a Student object with basic attributes
     def __init__(self, name, subjects, scores, average, grade):
         self.name = name
         self.subjects = subjects
         self.scores = scores
         self.average = average
         self.grade = grade
-
+        
+    # Method to add the student's data to a given record dictionary (e.g., for saving in JSON)
     def add_to_record(self, record_dict):
         record_dict["name"].append(self.name)
         record_dict["subjects"].append(self.subjects)
@@ -71,12 +84,14 @@ class Student:
     def add_option(self):   
         while True:
             try:
+                # Prompt for student information
                 name = input("Enter the student name: \n").strip().lower()
                 print()
                 subjects = input(f"Enter the subject for {name}: \n").strip().lower()
                 print()
                 scores = float(input(f"Enter {name} score for {subjects} subject: \n"))
                 print()
+                # Get total obtainable score
                 total = int(input(f"Enter the total score obtainable for {subjects}, \nthis would be used to compute the grade and average \n"))
                 if total <= 0:
                     print("total score can't be less that Zero")
@@ -85,7 +100,8 @@ class Student:
                 elif total < scores:
                     print("total score obtainable can't be less than score obtained by student")
                     print()
-                    continue  
+                    continue
+                # Prompt for grading scale (A–F)  
                 print("We would like to personalize the student report card!!! \n \ntherefore, from A to F we would like you to define the grading scale \n \non a scale of 0 percent to 100 percent, answer the following  please do not include the perventage sign e.g (70) for 70 and above \n")
                 for i in range(2):
                     a = float(input("enter the percentage cut off for grade A, \n"))
@@ -110,6 +126,7 @@ class Student:
             except Exception as e:
                 print(f"Error with the code: {e}")
                 continue
+            # Calculate grade based on score
             grade_score = (scores/total) * 100
             if grade_score >= a:
                 grade = "A"
@@ -123,20 +140,24 @@ class Student:
                 grade = "E"
             else:
                 grade = "F"
+            # Load existing data
             import json
             import os
             BASE_DIR = os.path.dirname(os.path.abspath(__file__))
             file_path = os.path.join(BASE_DIR, "Student_record.json")
             with open(file_path, "r") as file:
-                old_json = json.load(file)  
+                old_json = json.load(file)
+            # Compute average as half of total (can be changed if needed)  
             average = total/2 
             #create an Student object
             Student_objects = Student(name, subjects, scores, average, grade)
             #add Student to the object 
             Student_objects.add_to_record(old_json)
+            # Save updated data to JSON
             with open(file_path, "w") as file:
                 json.dump(old_json, file)
                 print(f"{name} sucessully added to report card!")
+            # Ask user if they want to repeat
             repeat = input("would you like to add another record for the same student or a different student \nType(yes or no) \n")
             if repeat == "yes":
                 continue
@@ -146,6 +167,7 @@ class Student:
     def view_option(self):   
         while True:
             try:
+                # Ask user if they want to view one student or all
                 print()
                 option = input("Would you like to view a student report card or all the student report card record \n \nEnter search(one student) or all(all students) \n").strip().lower()
             except Exception as e:
@@ -154,17 +176,20 @@ class Student:
             else:
                 if option == "search":
                     try:
+                        # Input student name to search
                         student_name = input("Enter the Specific student name to view the report card: \n").strip().lower()
                     except Exception as e:
                         print(f"Error with the code: {e}")
                         continue
                     else:
+                        # Load student data
                         import json
                         import os
                         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
                         file_path = os.path.join(BASE_DIR, "Student_record.json")
                         with open(file_path, "r") as file:
                             old_json = json.load(file)
+                        # Extract student-specific records
                         student_view = {
                             "name" : [],
                             "subjects" : [],
@@ -179,6 +204,7 @@ class Student:
                                 student_view['scores'].append(old_json['scores'][index])
                                 student_view['average'].append(old_json['average'][index])
                                 student_view['grade'].append(old_json['grade'][index])
+                        # Display as DataFrame
                         import pandas as pd
                         student_df = pd.DataFrame(student_view)
                         if student_df.empty:
@@ -190,6 +216,7 @@ class Student:
                             print(student_df.sort_index())
                             break
                 elif option == "all":
+                    # Load all records and show sorted view
                     import json
                     import os
                     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -209,18 +236,21 @@ class Student:
     def update_option(self):
         while True:
             try:
+                # Get name of student to update
                 print()
                 student_name = input("Enter the name of the student you will like to update) \n").strip().lower()
             except Exception as e:
                 print(f"Error with the code: {e}")
                 continue
             else:
+                # Load existing JSON data
                 import json
                 import os
                 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
                 file_path = os.path.join(BASE_DIR, "Student_record.json")
                 with open(file_path, "r") as file:
                     old_json = json.load(file)
+                # Split matching and non-matching student records
                 student_view = {
                     "name" : [],
                     "subjects" : [],
@@ -248,6 +278,7 @@ class Student:
                         other_view['scores'].append(old_json['scores'][index])
                         other_view['average'].append(old_json['average'][index])
                         other_view['grade'].append(old_json['grade'][index])
+                # Display student data if found
                 import pandas as pd
                 student_df = pd.DataFrame(student_view)
                 if student_df.empty:
@@ -257,6 +288,7 @@ class Student:
                 else:
                     print(student_df)
                 try:
+                    # Select index to update
                     index = int(input("Enter the index number of the the subject you like to update e.g 0 \n").strip())
                     num = 1
                     menulist = ["name", "subjects",  "scores"]
@@ -265,6 +297,7 @@ class Student:
                         print(f"{num}. {menu}")
                         print()
                         num += 1
+                    # Choose what to update
                     record = int(input("enter the integer option from the menu above record you would like to update, \n").strip())
                     if record == 1:
                         new_name = input("Enter the new student_name \n").strip().lower()
@@ -275,6 +308,7 @@ class Student:
                     elif record == 3:
                         new_scores = float(input("Enter the new score \n").strip())
                         student_view['scores'][index] = new_scores
+                        # Update average and grade
                         for i in range(2):
                             print("New score automatically update average and grade \n \nyou would need to define the total and grade criteria \n")
                             total = int(input(f"Enter the total score obtainable for the new score you just entered \n").strip())
