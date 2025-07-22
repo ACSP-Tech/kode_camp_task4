@@ -23,7 +23,7 @@ def menu():
     username = input("Enter your organization name to sign in; \n").strip().upper()
     print(".........)....................................................")
     print()
-    print("...     Welcome to your Personal Budget Tracker     ......")
+    print(f"...     Welcome to {username} Personal Budget Tracker     ......")
     print("...    Enter a valid interger from the menu options below....")
     num = 1
     menulist = ["Add_budget", "View_budget", "edit_budget", "groupby_category",  "exit"]
